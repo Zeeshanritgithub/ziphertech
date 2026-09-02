@@ -288,10 +288,10 @@ export default function Home() {
                 Trusted Partners & Services
               </h3>
               <div className="flex flex-wrap justify-center items-center gap-8">
-                <img src="/logo1.png" alt="Logo 1" className="h-18 md:h-20 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-                <img src="/logo2.png" alt="Logo 2" className="h-18 md:h-20 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-                <img src="/logo3.png" alt="Logo 3" className="h-18 md:h-20 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-                <img src="/logo4.png" alt="Logo 4" className="h-18 md:h-20 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+                <img src="/logo1.png" alt="Logo 1" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+                <img src="/logo2.png" alt="Logo 2" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+                <img src="/logo3.png" alt="Logo 3" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+                <img src="/logo4.png" alt="Logo 4" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
               </div>
             </div>
 
