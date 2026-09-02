@@ -37,6 +37,8 @@ export default function Home() {
     paymentMode: "",
     query: "",
     declaration: "",
+    approval: "",
+    selectedName: "",
   };
 
   const [form, setForm] = useState(initialForm);
@@ -52,7 +54,7 @@ export default function Home() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -92,6 +94,21 @@ export default function Home() {
     }
     setLoading(false);
   };
+
+  const namesList = [
+    "Jennifer",
+    "Veronica",
+    "Chris",
+    "Peter",
+    "John",
+    "Bella",
+    "Stefart",
+    "Shepherd",
+    "Diana",
+    "Emma",
+    "Cathirana",
+    "Jimmy",
+  ];
 
   return (
     <main 
@@ -305,30 +322,68 @@ export default function Home() {
               />
             </section>
 
-            {/* Data Tracker Status Indicator & Refresh Button Container */}
-            <div className="space-y-2">
-              <section 
-                className="flex items-center justify-between p-3 rounded-sm border"
-                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
-              >
-                <span className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--theme-text-muted)" }}>Data tracker</span>
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
-                  </span>
-                  <span className="text-xs font-semibold text-red-400 tracking-wider">LIVE</span>
-                </div>
-              </section>
+            {/* Approval Box (Yes/No) */}
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Approval
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "var(--theme-text-muted)" }}>
+                Please provide your approval status
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <RadioOption label="Yes" name="approval" value="Yes" selected={form.approval} onChange={handleChange} />
+                <RadioOption label="No" name="approval" value="No" selected={form.approval} onChange={handleChange} />
+              </div>
+            </section>
 
-              {/* Data Tracker Refresh Button */}
+            {/* Selected Box (Names Dropdown/Options) */}
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Selected
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "var(--theme-text-muted)" }}>
+                Choose a name from the list
+              </p>
+              <select
+                name="selectedName"
+                value={form.selectedName}
+                onChange={handleChange}
+                className="w-full rounded-sm border p-3.5 text-sm outline-none transition-all cursor-pointer"
+                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+              >
+                <option value="" disabled>Select a name...</option>
+                {namesList.map((name) => (
+                  <option key={name} value={name} style={{ backgroundColor: "var(--theme-bg)", color: "var(--theme-text-main)" }}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </section>
+
+            {/* Full-width Data Tracker */}
+            <section 
+              className="flex items-center justify-between p-3 rounded-sm border w-full"
+              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+            >
+              <span className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--theme-text-muted)" }}>Data tracker</span>
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
+                </span>
+                <span className="text-xs font-semibold text-red-400 tracking-wider">LIVE</span>
+              </div>
+            </section>
+
+            {/* Small Refresh Button on Left Side in New Row */}
+            <div className="flex justify-start">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="w-full py-2.5 rounded-sm border text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center justify-center gap-2 hover:opacity-90"
+                className="py-2.5 px-5 rounded-sm border text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center gap-2 hover:opacity-95"
                 style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
               >
-                <span>🔄</span> Refresh 
+                <span>🔄</span> Refresh
               </button>
             </div>
 

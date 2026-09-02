@@ -22,6 +22,8 @@ export async function POST(request: Request) {
       paymentMode,
       query,
       declaration,
+      approval,
+      selectedName,
     } = body;
 
     // Basic Validation
@@ -65,6 +67,8 @@ export async function POST(request: Request) {
           payment_mode: paymentMode || null,
           query: query,
           declaration: declaration || null,
+          approval: approval || null,
+          selected_name: selectedName || null,
         },
       ])
       .select()
@@ -114,6 +118,8 @@ export async function POST(request: Request) {
         <p><strong>Eligibility:</strong> ${eligibility || "-"}</p>
         <p><strong>Health Medicare:</strong> ${healthMedicare || "-"}</p>
         <p><strong>Payment Mode:</strong> ${paymentMode || "-"}</p>
+        <p><strong>Approval:</strong> ${approval || "-"}</p>
+        <p><strong>Selected Name:</strong> ${selectedName || "-"}</p>
         <hr />
         <h3>User Query</h3>
         <p>${query || "-"}</p>
