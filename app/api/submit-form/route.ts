@@ -19,7 +19,9 @@ export async function POST(request: Request) {
       subsidyBenefit,
       eligibility,
       healthMedicare,
+      paymentMode,
       query,
+      declaration,
     } = body;
 
     // Basic Validation
@@ -60,7 +62,9 @@ export async function POST(request: Request) {
           subsidy_benefit: subsidyBenefit,
           eligibility: eligibility,
           health_medicare: healthMedicare,
+          payment_mode: paymentMode || null,
           query: query,
+          declaration: declaration || null,
         },
       ])
       .select()
@@ -109,9 +113,13 @@ export async function POST(request: Request) {
         <p><strong>Subsidy Benefit:</strong> ${subsidyBenefit || "-"}</p>
         <p><strong>Eligibility:</strong> ${eligibility || "-"}</p>
         <p><strong>Health Medicare:</strong> ${healthMedicare || "-"}</p>
+        <p><strong>Payment Mode:</strong> ${paymentMode || "-"}</p>
         <hr />
         <h3>User Query</h3>
         <p>${query || "-"}</p>
+        <hr />
+        <h3>Declaration</h3>
+        <p>${declaration || "-"}</p>
       `,
     });
 

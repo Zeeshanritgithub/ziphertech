@@ -34,7 +34,9 @@ export default function Home() {
     subsidyBenefit: "",
     eligibility: "",
     healthMedicare: "",
+    paymentMode: "",
     query: "",
+    declaration: "",
   };
 
   const [form, setForm] = useState(initialForm);
@@ -256,6 +258,21 @@ export default function Home() {
               </div>
             </section>
 
+            {/* Payment Mode (Added below Eligibility) */}
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Payment Mode
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "var(--theme-text-muted)" }}>
+                Select your preferred currency option
+              </p>
+              <div className="grid md:grid-cols-3 gap-3">
+                <RadioOption label="USD $" name="paymentMode" value="USD $" selected={form.paymentMode} onChange={handleChange} />
+                <RadioOption label="GBP £" name="paymentMode" value="GBP £" selected={form.paymentMode} onChange={handleChange} />
+                <RadioOption label="CAD $" name="paymentMode" value="CAD $" selected={form.paymentMode} onChange={handleChange} />
+              </div>
+            </section>
+
             {/* Query Box */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
@@ -266,6 +283,22 @@ export default function Home() {
                 value={form.query}
                 onChange={handleChange}
                 placeholder="Write your query here..."
+                rows={4}
+                className="w-full rounded-sm border p-3.5 text-sm placeholder-slate-400 outline-none transition-all"
+                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+              />
+            </section>
+
+            {/* Declaration Form Box (Added below Query) */}
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Declaration
+              </h2>
+              <textarea
+                name="declaration"
+                value={form.declaration}
+                onChange={handleChange}
+                placeholder="Write your declaration here..."
                 rows={4}
                 className="w-full rounded-sm border p-3.5 text-sm placeholder-slate-400 outline-none transition-all"
                 style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
@@ -353,10 +386,6 @@ function Input({ label, name, value, onChange, type = "text", placeholder = "", 
     </div>
   );
 }
-
-
-
-
 
 function RadioOption({ label, name, value, selected, onChange }: RadioOptionProps) {
   const isSelected = selected === value;
