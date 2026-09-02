@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface InputProps {
   label: string;
@@ -40,6 +40,15 @@ export default function Home() {
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({
@@ -84,14 +93,14 @@ export default function Home() {
 
   return (
     <main 
-      className="min-h-screen text-white flex items-center justify-center p-4 md:p-6 font-sans"
+      className="min-h-screen text-white flex items-center justify-center p-4 md:p-6 font-sans transition-colors duration-300"
       style={{ backgroundColor: "var(--theme-bg)" }}
     >
       <div className="max-w-2xl w-full mx-auto">
         
         {/* Form Card */}
         <div 
-          className="backdrop-blur-xl rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl"
+          className="backdrop-blur-xl rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl transition-colors duration-300"
           style={{ 
             backgroundColor: "var(--theme-card-bg)", 
             borderColor: "var(--theme-border)",
@@ -105,6 +114,30 @@ export default function Home() {
             className="absolute top-0 left-0 right-0 h-[2px]" 
             style={{ background: `linear-gradient(to right, transparent, var(--theme-primary), transparent)` }}
           />
+
+          {/* Theme Toggle Button Top Right */}
+          <div className="flex justify-end mb-4">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold cursor-pointer transition-all"
+              style={{
+                backgroundColor: "var(--theme-bg)",
+                borderColor: "var(--theme-border)",
+                color: "var(--theme-text-main)",
+              }}
+            >
+              {theme === "dark" ? (
+                <>
+                  <span>☀️</span> Light Mode
+                </>
+              ) : (
+                <>
+                  <span>🌙</span> Dark Mode
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Header */}
           <div 
@@ -234,8 +267,8 @@ export default function Home() {
                 onChange={handleChange}
                 placeholder="Write your query here..."
                 rows={4}
-                className="w-full rounded-sm border p-3.5 text-sm text-white placeholder-slate-600 outline-none transition-all"
-                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+                className="w-full rounded-sm border p-3.5 text-sm placeholder-slate-400 outline-none transition-all"
+                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
               />
             </section>
 
@@ -314,8 +347,8 @@ function Input({ label, name, value, onChange, type = "text", placeholder = "", 
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="w-full rounded-sm border p-3.5 text-sm text-white placeholder-slate-600 outline-none transition-all"
-        style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+        className="w-full rounded-sm border p-3.5 text-sm placeholder-slate-400 outline-none transition-all"
+        style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
       />
     </div>
   );

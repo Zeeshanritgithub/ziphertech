@@ -1,20 +1,31 @@
 @import "tailwindcss";
 
 :root {
- 
-
-
   /* ========================================== */
-  /* THEME CONFIGURATION - EDIT COLORS HERE     */
+  /* DARK THEME CONFIGURATION (DEFAULT)         */
   /* ========================================== */
-  --theme-bg: #020617;                   /* Main background */
-  --theme-card-bg: #090d16;              /* Form card background */
-  --theme-border: #1e293b;               /* Border color */
-  --theme-primary: #0ea5e9;              /* Primary neon accent (Cyan/Sky) */
-  --theme-primary-hover: #0284c7;        /* Primary button hover */
-  --theme-text-main: #ffffff;            /* Main text color */
-  --theme-text-muted: #94a3b8;           /* Muted text color */
+  --theme-bg: #020617;                    /* Main background */
+  --theme-card-bg: #090d16;               /* Form card background */
+  --theme-border: #1e293b;                /* Border color */
+  --theme-primary: #0ea5e9;               /* Primary neon accent (Cyan/Sky) */
+  --theme-primary-hover: #0284c7;         /* Primary button hover */
+  --theme-text-main: #ffffff;             /* Main text color */
+  --theme-text-muted: #94a3b8;            /* Muted text color */
   --theme-glow: rgba(14, 165, 233, 0.2);
+}
+
+[data-theme="light"] {
+  /* ========================================== */
+  /* LIGHT THEME CONFIGURATION                  */
+  /* ========================================== */
+  --theme-bg: #f8fafc;                    /* Main background */
+  --theme-card-bg: #ffffff;               /* Form card background */
+  --theme-border: #cbd5e1;                /* Border color */
+  --theme-primary: #0284c7;               /* Primary accent */
+  --theme-primary-hover: #0369a1;         /* Primary button hover */
+  --theme-text-main: #0f172a;             /* Main text color */
+  --theme-text-muted: #64748b;            /* Muted text color */
+  --theme-glow: rgba(2, 132, 199, 0.15);
 }
 
 @theme inline {
@@ -24,15 +35,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--theme-bg);
+  color: var(--theme-text-main);
   font-family: Arial, Helvetica, sans-serif;
 }
