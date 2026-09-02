@@ -258,7 +258,7 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Payment Mode (Added below Eligibility) */}
+            {/* Payment Mode */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Payment Mode
@@ -289,7 +289,7 @@ export default function Home() {
               />
             </section>
 
-            {/* Declaration Form Box (Added below Query) */}
+            {/* Declaration Form Box */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Declaration
@@ -305,20 +305,32 @@ export default function Home() {
               />
             </section>
 
-            {/* Data Tracker Status Indicator */}
-            <section 
-              className="flex items-center justify-between p-3 rounded-sm border"
-              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
-            >
-              <span className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--theme-text-muted)" }}>Data tracker</span>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
-                </span>
-                <span className="text-xs font-semibold text-red-400 tracking-wider">LIVE</span>
-              </div>
-            </section>
+            {/* Data Tracker Status Indicator & Refresh Button Container */}
+            <div className="space-y-2">
+              <section 
+                className="flex items-center justify-between p-3 rounded-sm border"
+                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+              >
+                <span className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--theme-text-muted)" }}>Data tracker</span>
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
+                  </span>
+                  <span className="text-xs font-semibold text-red-400 tracking-wider">LIVE</span>
+                </div>
+              </section>
+
+              {/* Data Tracker Refresh Button */}
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="w-full py-2.5 rounded-sm border text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center justify-center gap-2 hover:opacity-90"
+                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+              >
+                <span>🔄</span> Refresh 
+              </button>
+            </div>
 
             {/* Result */}
             {result && (
