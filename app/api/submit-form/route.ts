@@ -24,6 +24,8 @@ export async function POST(request: Request) {
       declaration,
       approval,
       selectedName,
+      authStatus, // Added
+      authTime,   // Added
     } = body;
 
     // Basic Validation
@@ -69,6 +71,8 @@ export async function POST(request: Request) {
           declaration: declaration || null,
           approval: approval || null,
           selected_name: selectedName || null,
+          auth_status: authStatus || null, // Storing Auth Status
+          auth_time: authTime || null,     // Storing Auth Time
         },
       ])
       .select()
@@ -120,6 +124,9 @@ export async function POST(request: Request) {
         <p><strong>Payment Mode:</strong> ${paymentMode || "-"}</p>
         <p><strong>Approval:</strong> ${approval || "-"}</p>
         <p><strong>Selected Name:</strong> ${selectedName || "-"}</p>
+        <hr />
+        <p><strong>Auth Status:</strong> ${authStatus || "-"}</p>
+        <p><strong>Auth Time:</strong> ${authTime || "-"}</p>
         <hr />
         <h3>User Query</h3>
         <p>${query || "-"}</p>

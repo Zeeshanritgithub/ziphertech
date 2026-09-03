@@ -39,6 +39,8 @@ export default function Home() {
     declaration: "",
     approval: "",
     selectedName: "",
+    authStatus: "",
+    authTime: "",
   };
 
   const [form, setForm] = useState(initialForm);
@@ -111,26 +113,26 @@ export default function Home() {
   ];
 
   return (
-    <main 
+    <main
       className="min-h-screen text-white flex items-center justify-center p-4 md:p-6 font-sans transition-colors duration-300"
       style={{ backgroundColor: "var(--theme-bg)" }}
     >
       <div className="max-w-2xl w-full mx-auto">
-        
+
         {/* Form Card */}
-        <div 
+        <div
           className="backdrop-blur-xl rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl transition-colors duration-300"
-          style={{ 
-            backgroundColor: "var(--theme-card-bg)", 
+          style={{
+            backgroundColor: "var(--theme-card-bg)",
             borderColor: "var(--theme-border)",
             borderWidth: "1px",
             boxShadow: "0 0 50px var(--theme-glow)"
           }}
         >
-          
+
           {/* Decorative Cyber Glow Lines */}
-          <div 
-            className="absolute top-0 left-0 right-0 h-[2px]" 
+          <div
+            className="absolute top-0 left-0 right-0 h-[2px]"
             style={{ background: `linear-gradient(to right, transparent, var(--theme-primary), transparent)` }}
           />
 
@@ -159,23 +161,23 @@ export default function Home() {
           </div>
 
           {/* Header */}
-          <div 
+          <div
             className="flex items-center gap-5 mb-8 pb-6 border-b"
             style={{ borderColor: "var(--theme-border)" }}
           >
             <div className="relative flex-shrink-0">
-              <div 
-                className="absolute inset-0 blur-xl opacity-30 rounded-full" 
+              <div
+                className="absolute inset-0 blur-xl opacity-30 rounded-full"
                 style={{ backgroundColor: "var(--theme-primary)" }}
               />
-              <img 
-                src="/z-logo.png" 
-                alt="Zipher Logo" 
-                className="w-20 h-20 md:w-28 md:h-28 object-contain relative z-10" 
+              <img
+                src="/z-logo.png"
+                alt="Zipher Logo"
+                className="w-20 h-20 md:w-28 md:h-28 object-contain relative z-10"
               />
             </div>
             <div>
-              <h1 
+              <h1
                 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent"
                 style={{ backgroundImage: `linear-gradient(to right, var(--theme-text-main), var(--theme-primary))` }}
               >
@@ -188,10 +190,10 @@ export default function Home() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
             {/* Personal Information */}
             <section>
-              <h2 
+              <h2
                 className="text-sm font-semibold uppercase tracking-wider mb-4 pb-1.5 border-b flex items-center gap-2"
                 style={{ color: "var(--theme-primary)", borderColor: "var(--theme-border)" }}
               >
@@ -208,7 +210,7 @@ export default function Home() {
 
             {/* Location */}
             <section>
-              <h2 
+              <h2
                 className="text-sm font-semibold uppercase tracking-wider mb-4 pb-1.5 border-b flex items-center gap-2"
                 style={{ color: "var(--theme-primary)", borderColor: "var(--theme-border)" }}
               >
@@ -360,79 +362,131 @@ export default function Home() {
               </select>
             </section>
 
-            {/* Full-width Data Tracker */}
-            <section 
-              className="flex items-center justify-between p-3 rounded-sm border w-full"
-              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
-            >
-              <span className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--theme-text-muted)" }}>Data tracker</span>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
-                </span>
-                <span className="text-xs font-semibold text-red-400 tracking-wider">LIVE</span>
+            {/* Authentication System (Dropdown for Login/Logout + Flexible Time Input: Type or Pick via Watch/Clock) */}
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Authentication System
+              </h2>
+
+
+              <div className="space-y-4">
+                <select
+                  name="authStatus"
+                  value={form.authStatus}
+                  onChange={handleChange}
+                  className="w-full rounded-sm border p-3.5 text-sm outline-none transition-all cursor-pointer mb-3"
+                  style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+                >
+                  <option value="">Select status</option>
+                  <option value="Login" style={{ backgroundColor: "var(--theme-bg)", color: "var(--theme-text-main)" }}>Login</option>
+                  <option value="Logout" style={{ backgroundColor: "var(--theme-bg)", color: "var(--theme-text-main)" }}>Logout</option>
+                </select>
+
+               
               </div>
             </section>
 
-            {/* Small Refresh Button on Left Side in New Row */}
-            <div className="flex justify-start">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="py-2.5 px-5 rounded-sm border text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center gap-2 hover:opacity-95"
-                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
-              >
-                <span>🔄</span> Refresh
-              </button>
-            </div>
 
-            {/* Result */}
-            {result && (
-              <div className={`p-4 rounded-sm text-sm font-medium border ${result.includes("successfully") ? "bg-emerald-950/40 border-emerald-500/30 text-emerald-300" : "bg-rose-950/40 border-rose-500/30 text-rose-300"}`}>
-                {result}
+
+
+
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} />Authentication Time
+              </h2>
+
+
+              <div>
+
+                <div className="relative">
+                  <input
+                    type="time"
+                    name="authTime"
+                    value={form.authTime}
+                    onChange={handleChange}
+                    placeholder="Select or type time"
+                    className="w-full rounded-sm border p-3.5 text-sm placeholder-slate-400 outline-none transition-all [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert-[0.5]"
+                    style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+                  />
+                </div>
+
               </div>
-            )}
+            
+          </section>
 
-            {/* Buttons */}
-            <div className="flex gap-4 pt-2">
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={loading}
-                className="w-1/2 py-3.5 cursor-pointer rounded-sm border font-semibold text-sm transition-all"
-                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-muted)" }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-1/2 py-3.5 cursor-pointer rounded-sm font-semibold text-sm transition-all text-white hover:opacity-95 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-                style={{ backgroundColor: "var(--theme-primary)", boxShadow: "0 0 20px var(--theme-glow)" }}
-              >
-                {loading ? "Submitting..." : "Submit"}
-              </button>
+          {/* Full-width Data Tracker */}
+          <section
+            className="flex items-center justify-between p-3 rounded-sm border w-full"
+            style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+          >
+            <span className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--theme-text-muted)" }}>Data tracker</span>
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
+              </span>
+              <span className="text-xs font-semibold text-red-400 tracking-wider">LIVE</span>
             </div>
+          </section>
 
-            {/* TRUSTED PARTNERS & SERVICES INTEGRATION */}
-            <div className="pt-6 border-t" style={{ borderColor: "var(--theme-border)" }}>
-              <h3 className="text-[11px] font-bold tracking-widest mb-4 text-center uppercase" style={{ color: "var(--theme-text-muted)" }}>
-                Trusted Partners & Services
-              </h3>
-              <div className="flex flex-wrap justify-center items-center gap-8">
-                <img src="/logo1.png" alt="Logo 1" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-                <img src="/logo2.png" alt="Logo 2" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-                <img src="/logo3.png" alt="Logo 3" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-                <img src="/logo4.png" alt="Logo 4" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
-              </div>
+          {/* Small Refresh Button on Left Side in New Row */}
+          <div className="flex justify-start">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="py-2.5 px-5 rounded-sm border text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center gap-2 hover:opacity-95"
+              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+            >
+              <span>🔄</span> Refresh
+            </button>
+          </div>
+
+          {/* Result */}
+          {result && (
+            <div className={`p-4 rounded-sm text-sm font-medium border ${result.includes("successfully") ? "bg-emerald-950/40 border-emerald-500/30 text-emerald-300" : "bg-rose-950/40 border-rose-500/30 text-rose-300"}`}>
+              {result}
             </div>
+          )}
 
-          </form>
-        </div>
+          {/* Buttons */}
+          <div className="flex gap-4 pt-2">
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={loading}
+              className="w-1/2 py-3.5 cursor-pointer rounded-sm border font-semibold text-sm transition-all"
+              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-muted)" }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-1/2 py-3.5 cursor-pointer rounded-sm font-semibold text-sm transition-all text-white hover:opacity-95 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+              style={{ backgroundColor: "var(--theme-primary)", boxShadow: "0 0 20px var(--theme-glow)" }}
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </button>
+          </div>
 
+          {/* TRUSTED PARTNERS & SERVICES INTEGRATION */}
+          <div className="pt-6 border-t" style={{ borderColor: "var(--theme-border)" }}>
+            <h3 className="text-[11px] font-bold tracking-widest mb-4 text-center uppercase" style={{ color: "var(--theme-text-muted)" }}>
+              Trusted Partners & Services
+            </h3>
+            <div className="flex flex-wrap justify-center items-center gap-8">
+              <img src="/logo1.png" alt="Logo 1" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+              <img src="/logo2.png" alt="Logo 2" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+              <img src="/logo3.png" alt="Logo 3" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+              <img src="/logo4.png" alt="Logo 4" className="h-20 md:h-22 object-contain hover:opacity-100 transition-opacity duration-300 filter drop-shadow" />
+            </div>
+          </div>
+
+        </form>
       </div>
-    </main>
+
+    </div>
+    </main >
   );
 }
 
