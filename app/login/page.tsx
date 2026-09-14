@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,20 +32,13 @@ export default function LoginPage() {
 
       if (loginError) {
         setError(
-          loginError.message ||
-            "Invalid email or password."
+          loginError.message || "Invalid email or password."
         );
         return;
       }
 
-      const redirectTo = searchParams.get("redirect");
-
-      router.push(
-        redirectTo && redirectTo.startsWith("/")
-          ? redirectTo
-          : "/form"
-      );
-
+      // Login successful
+      router.push("/form");
       router.refresh();
     } catch (error) {
       console.error("Login error:", error);
@@ -61,6 +53,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-black text-white">
+
       <div className="w-full max-w-md">
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-8 shadow-2xl">
@@ -83,6 +76,7 @@ export default function LoginPage() {
             Login to continue
           </p>
 
+          {/* Login Form */}
           <form
             onSubmit={handleLogin}
             className="space-y-5"
@@ -90,11 +84,15 @@ export default function LoginPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm mb-2 text-gray-300">
+              <label
+                htmlFor="email"
+                className="block text-sm mb-2 text-gray-300"
+              >
                 Email Address
               </label>
 
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) =>
@@ -103,17 +101,21 @@ export default function LoginPage() {
                 placeholder="Enter your email"
                 required
                 autoComplete="email"
-                className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 outline-none text-white placeholder-gray-500 focus:border-red-500"
+                className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 outline-none text-white placeholder-gray-500 focus:border-red-500 transition"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm mb-2 text-gray-300">
+              <label
+                htmlFor="password"
+                className="block text-sm mb-2 text-gray-300"
+              >
                 Password
               </label>
 
               <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(e) =>
@@ -122,29 +124,34 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 required
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 outline-none text-white placeholder-gray-500 focus:border-red-500"
+                className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 outline-none text-white placeholder-gray-500 focus:border-red-500 transition"
               />
             </div>
 
-            {/* Error */}
+            {/* Error Message */}
             {error && (
               <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
                 {error}
               </div>
             )}
 
-            {/* Login */}
+            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-red-600 py-3.5 font-semibold transition hover:bg-red-500 disabled:opacity-50"
+              className="w-full rounded-xl bg-red-600 py-3.5 font-semibold transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading
+                ? "Logging in..."
+                : "Login"}
             </button>
 
           </form>
+
         </div>
+
       </div>
+
     </main>
   );
 }
