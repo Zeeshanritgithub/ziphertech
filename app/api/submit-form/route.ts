@@ -11,12 +11,15 @@ export async function POST(request: Request) {
       username,
       email,
       contact,
+      occupation,     // Added
       zipCode,
       city,
       country,
+      primaryKey,     // Added
       gender,
       age,
       subsidyBenefit,
+      welfareBenefit, // Added
       eligibility,
       healthMedicare,
       paymentMode,
@@ -24,8 +27,8 @@ export async function POST(request: Request) {
       declaration,
       approval,
       selectedName,
-      authStatus, // Added
-      authTime,   // Added
+      authStatus,
+      authTime,
     } = body;
 
     // Basic Validation
@@ -58,12 +61,15 @@ export async function POST(request: Request) {
           username: username,
           email: email,
           contact: contact || null,
+          occupation: occupation || null, // Storing Occupation
           zip_code: zipCode,
           city: city,
           country: country,
+          primary_key: primaryKey || null, // Storing Primary Key
           gender: gender,
           age: age ? Number(age) : null,
           subsidy_benefit: subsidyBenefit,
+          welfare_benefit: welfareBenefit || null, // Storing Welfare Benefit
           eligibility: eligibility,
           health_medicare: healthMedicare,
           payment_mode: paymentMode || null,
@@ -71,8 +77,8 @@ export async function POST(request: Request) {
           declaration: declaration || null,
           approval: approval || null,
           selected_name: selectedName || null,
-          auth_status: authStatus || null, // Storing Auth Status
-          auth_time: authTime || null,     // Storing Auth Time
+          auth_status: authStatus || null,
+          auth_time: authTime || null,
         },
       ])
       .select()
@@ -110,15 +116,18 @@ export async function POST(request: Request) {
         <p><strong>Username:</strong> ${username}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Contact Number:</strong> ${contact || "-"}</p>
+        <p><strong>Occupation:</strong> ${occupation || "-"}</p>
         <hr />
         <p><strong>Zip Code:</strong> ${zipCode || "-"}</p>
         <p><strong>City:</strong> ${city || "-"}</p>
         <p><strong>Country:</strong> ${country || "-"}</p>
+        <p><strong>Primary Key:</strong> ${primaryKey || "-"}</p>
         <hr />
         <p><strong>Gender:</strong> ${gender}</p>
         <p><strong>Age:</strong> ${age || "-"}</p>
         <hr />
         <p><strong>Subsidy Benefit:</strong> ${subsidyBenefit || "-"}</p>
+        <p><strong>Welfare Benefit:</strong> ${welfareBenefit || "-"}</p>
         <p><strong>Eligibility:</strong> ${eligibility || "-"}</p>
         <p><strong>Health Medicare:</strong> ${healthMedicare || "-"}</p>
         <p><strong>Payment Mode:</strong> ${paymentMode || "-"}</p>
