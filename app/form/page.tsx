@@ -1,11 +1,8 @@
 "use client";
 
-
-
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
-
 interface InputProps {
   label: string;
   name: string;
@@ -303,11 +300,11 @@ useEffect(() => {
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Welfare Benefits
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <RadioOption label="1) PIP" name="welfareBenefit" value="PIP" selected={form.welfareBenefit} onChange={handleChange} />
-                <RadioOption label="2) ESA" name="welfareBenefit" value="ESA" selected={form.welfareBenefit} onChange={handleChange} />
-                <RadioOption label="3) CPP-D" name="welfareBenefit" value="CPP-D" selected={form.welfareBenefit} onChange={handleChange} />
-                <RadioOption label="4) CDB" name="welfareBenefit" value="CDB" selected={form.welfareBenefit} onChange={handleChange} />
-                <RadioOption label="5) DTC" name="welfareBenefit" value="DTC" selected={form.welfareBenefit} onChange={handleChange} />
+                <RadioOption label="PIP" name="welfareBenefit" value="PIP" selected={form.welfareBenefit} onChange={handleChange} />
+                <RadioOption label="ESA" name="welfareBenefit" value="ESA" selected={form.welfareBenefit} onChange={handleChange} />
+                <RadioOption label="CPP-D" name="welfareBenefit" value="CPP-D" selected={form.welfareBenefit} onChange={handleChange} />
+                <RadioOption label="CDB" name="welfareBenefit" value="CDB" selected={form.welfareBenefit} onChange={handleChange} />
+                <RadioOption label="DTC" name="welfareBenefit" value="DTC" selected={form.welfareBenefit} onChange={handleChange} />
               </div>
             </section>
 
