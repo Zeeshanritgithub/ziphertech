@@ -1,6 +1,10 @@
 "use client";
 
+
+
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/client";
 
 interface InputProps {
   label: string;
@@ -60,6 +64,21 @@ export default function Home() {
       setTheme(savedTheme);
     }
   }, []);
+
+
+  const router = useRouter();
+
+useEffect(() => {
+  const loggedIn = sessionStorage.getItem("zipher_logged_in");
+
+  if (!loggedIn) {
+    const supabase = createClient();
+
+    supabase.auth.signOut().finally(() => {
+      router.replace("/login");
+    });
+  }
+}, [router]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -237,8 +256,20 @@ export default function Home() {
                 <div className="md:col-span-2">
                   <Input label="Country" name="country" placeholder="Enter country name" value={form.country} onChange={handleChange} />
                 </div>
+              </div>
+            </section>
+
+            {/* Primary Key */}
+            <section>
+              <h2
+                className="text-sm font-semibold uppercase tracking-wider mb-2  flex items-center gap-2"
+                style={{ color: "var(--theme-primary)", borderColor: "var(--theme-border)" }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Primary Key
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <Input label="Primary Key (Optional)" name="primaryKey" placeholder="Enter primary key reference" value={form.primaryKey} onChange={handleChange} />
+                  <Input label="" name="primaryKey" placeholder="Enter primary key" value={form.primaryKey} onChange={handleChange} />
                 </div>
               </div>
             </section>
@@ -266,12 +297,12 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Welfare Benefits */}
+            {/* Welfare Benefits (Displayed in a single line on desktop using grid-cols-5) */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Welfare Benefits
               </h2>
-              <div className="grid md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <RadioOption label="1) PIP" name="welfareBenefit" value="PIP" selected={form.welfareBenefit} onChange={handleChange} />
                 <RadioOption label="2) ESA" name="welfareBenefit" value="ESA" selected={form.welfareBenefit} onChange={handleChange} />
                 <RadioOption label="3) CPP-D" name="welfareBenefit" value="CPP-D" selected={form.welfareBenefit} onChange={handleChange} />

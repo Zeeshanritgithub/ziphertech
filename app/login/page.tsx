@@ -25,21 +25,21 @@ export default function LoginPage() {
 
     try {
       const { error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+  await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
 
-      if (loginError) {
-        setError(
-          loginError.message || "Invalid email or password."
-        );
-        return;
-      }
+if (loginError) {
+  setError(loginError.message || "Invalid email or password.");
+  return;
+}
 
-      // Login successful
-      router.push("/form");
-      router.refresh();
+console.log("LOGIN SUCCESS - navigating to form");
+
+sessionStorage.setItem("zipher_logged_in", "true");
+
+window.location.href = "/form";
     } catch (error) {
       console.error("Login error:", error);
 
@@ -53,7 +53,6 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-black text-white">
-
       <div className="w-full max-w-md">
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-8 shadow-2xl">
@@ -63,7 +62,7 @@ export default function LoginPage() {
             <img
               src="/z-logo.png"
               alt="Zipher"
-              className="w-24 h-24 object-contain"
+              className="w-40 h-40 object-contain"
             />
           </div>
 
@@ -128,7 +127,7 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Error Message */}
+            {/* Error */}
             {error && (
               <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
                 {error}
@@ -139,7 +138,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-red-600 py-3.5 font-semibold transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-sm cursor-pointer bg-red-600 py-3.5 font-semibold transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading
                 ? "Logging in..."
@@ -151,7 +150,6 @@ export default function LoginPage() {
         </div>
 
       </div>
-
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
     request,
   });
@@ -16,17 +16,25 @@ export async function middleware(request: NextRequest) {
         },
 
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
-          });
+          cookiesToSet.forEach(
+            ({ name, value }) => {
+              request.cookies.set(name, value);
+            }
+          );
 
           response = NextResponse.next({
             request,
           });
 
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
+          cookiesToSet.forEach(
+            ({ name, value, options }) => {
+              response.cookies.set(
+                name,
+                value,
+                options
+              );
+            }
+          );
         },
       },
     }
@@ -38,18 +46,31 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // -----------------------------------------
   // Protect /form
-  if (pathname.startsWith("/form") && !user) {
+  // -----------------------------------------
+  if (
+    pathname.startsWith("/form") &&
+    !user
+  ) {
     const loginUrl = request.nextUrl.clone();
 
     loginUrl.pathname = "/login";
-    loginUrl.searchParams.set("redirect", pathname);
+
+    // We don't need redirect anymore because
+    // login always goes to /form.
+    loginUrl.search = "";
 
     return NextResponse.redirect(loginUrl);
   }
 
-  // Already logged in → don't show login
-  if (pathname.startsWith("/login") && user) {
+  // -----------------------------------------
+  // Already logged in → don't show /login
+  // -----------------------------------------
+  if (
+    pathname.startsWith("/login") &&
+    user
+  ) {
     return NextResponse.redirect(
       new URL("/form", request.url)
     );
