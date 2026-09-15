@@ -235,7 +235,7 @@ useEffect(() => {
                 <Input label="Email Address" name="email" type="email" placeholder="Enter your email" value={form.email} onChange={handleChange} required />
                 <Input label="Contact Number" name="contact" type="tel" placeholder="Enter your contact number" value={form.contact} onChange={handleChange} />
                 <Input label="Age" name="age" type="number" placeholder="Enter your age" value={form.age} onChange={handleChange} />
-                <Input label="Occupation (Optional)" name="occupation" placeholder="Enter your occupation" value={form.occupation} onChange={handleChange} />
+                <Input label="Occupation" name="occupation" placeholder="Enter your occupation" value={form.occupation} onChange={handleChange} />
               </div>
             </section>
 
