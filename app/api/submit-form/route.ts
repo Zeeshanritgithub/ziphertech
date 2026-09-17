@@ -15,11 +15,11 @@ export async function POST(request: Request) {
       zipCode,
       city,
       country,
-      dob,              // New field
-      maritalStatus,    // New field
-      nationality,      // New field
-      identificationType, // New field
-      idNumber,         // New field
+      dob,              
+      maritalStatus,    
+      nationality,     
+      identificationType, 
+      idNumber,         
       primaryKey,
       gender,
       age,
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       query,
       declaration,
       approval,
-      denomination,     // New field
+      denomination,    
       selectedName,
       authStatus,
       authTime,
@@ -71,11 +71,11 @@ export async function POST(request: Request) {
           zip_code: zipCode || null,
           city: city || null,
           country: country || null,
-          dob: dob || null,                         // Storing DOB
-          marital_status: maritalStatus || null,    // Storing Marital Status
-          nationality: nationality || null,         // Storing Nationality
-          identification_type: identificationType || null, // Storing Identification Type
-          id_number: idNumber || null,              // Storing I.D Number
+          dob: dob || null,                         
+          marital_status: maritalStatus || null,   
+          nationality: nationality || null,        
+          identification_type: identificationType || null, 
+          id_number: idNumber || null,             
           primary_key: primaryKey || null,
           gender: gender,
           age: age ? Number(age) : null,
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           query: query || null,
           declaration: declaration || null,
           approval: approval || null,
-          denomination: denomination || null,       // Storing Denomination
+          denomination: denomination || null,      
           selected_name: selectedName || null,
           auth_status: authStatus || null,
           auth_time: authTime || null,
