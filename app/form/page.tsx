@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
+
 interface InputProps {
   label: string;
   name: string;
@@ -31,6 +32,11 @@ export default function Home() {
     zipCode: "",
     city: "",
     country: "",
+    dob: "",
+    maritalStatus: "",
+    nationality: "",
+    identificationType: "",
+    idNumber: "",
     primaryKey: "",
     gender: "",
     age: "",
@@ -42,6 +48,7 @@ export default function Home() {
     query: "",
     declaration: "",
     approval: "",
+    denomination: "",
     selectedName: "",
     authStatus: "",
     authTime: "",
@@ -62,20 +69,19 @@ export default function Home() {
     }
   }, []);
 
-
   const router = useRouter();
 
-useEffect(() => {
-  const loggedIn = sessionStorage.getItem("zipher_logged_in");
+  useEffect(() => {
+    const loggedIn = sessionStorage.getItem("zipher_logged_in");
 
-  if (!loggedIn) {
-    const supabase = createClient();
+    if (!loggedIn) {
+      const supabase = createClient();
 
-    supabase.auth.signOut().finally(() => {
-      router.replace("/login");
-    });
-  }
-}, [router]);
+      supabase.auth.signOut().finally(() => {
+        router.replace("/login");
+      });
+    }
+  }, [router]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -140,6 +146,18 @@ useEffect(() => {
     "Emma",
     "Cathirana",
     "Jimmy",
+  ];
+
+  const denominationList = [
+    "Catholic",
+    "Protestant",
+    "Orthodox",
+    "Other Christian",
+    "Islam",
+    "Hinduism",
+    "No Religion",
+    "Other",
+    "Prefer not to say",
   ];
 
   return (
@@ -236,6 +254,11 @@ useEffect(() => {
                 <Input label="Contact Number" name="contact" type="tel" placeholder="Enter your contact number" value={form.contact} onChange={handleChange} />
                 <Input label="Age" name="age" type="number" placeholder="Enter your age" value={form.age} onChange={handleChange} />
                 <Input label="Occupation" name="occupation" placeholder="Enter your occupation" value={form.occupation} onChange={handleChange} />
+                <Input label="Date of Birth" name="dob" type="date" placeholder="Select your DOB" value={form.dob} onChange={handleChange} />
+                <Input label="Marital Status" name="maritalStatus" placeholder="Enter your marital status" value={form.maritalStatus} onChange={handleChange} />
+                <div className="md:col-span-2">
+                  <Input label="Nationality" name="nationality" placeholder="Enter your nationality" value={form.nationality} onChange={handleChange} />
+                </div>
               </div>
             </section>
 
@@ -256,10 +279,53 @@ useEffect(() => {
               </div>
             </section>
 
+
+            {/* Identification Type (New Section Box with blue accent styling) */}
+
+
+
+
+
+
+             <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-2 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Identification Type
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "var(--theme-text-muted)" }}>
+                Select your identification type
+              </p>
+              <div className="grid md:grid-cols-3 gap-3">
+                <RadioOption label="SSN" name="identificationType" value="SSN" selected={form.identificationType} onChange={handleChange} />
+                <RadioOption label="NINo" name="identificationType" value="NINo" selected={form.identificationType} onChange={handleChange} />
+                <RadioOption label="SIN" name="identificationType" value="SIN" selected={form.identificationType} onChange={handleChange} />
+              </div>
+            </section>
+
+
+           
+
+            {/* I.D Number / Identification Number (New Section Box with blue accent styling) */}
+
+
+            
+             <section>
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-2 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Identification Number
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Input label="" name="idNumber" placeholder="Enter I.D Number" value={form.idNumber} onChange={handleChange} />
+                </div>
+              </div>
+            </section>
+
+
+           
+
             {/* Primary Key */}
             <section>
               <h2
-                className="text-sm font-semibold uppercase tracking-wider mb-2  flex items-center gap-2"
+                className="text-sm font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"
                 style={{ color: "var(--theme-primary)", borderColor: "var(--theme-border)" }}
               >
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Primary Key
@@ -294,7 +360,7 @@ useEffect(() => {
               </div>
             </section>
 
-            {/* Welfare Benefits (Displayed in a single line on desktop using grid-cols-5) */}
+            {/* Welfare Benefits */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Welfare Benefits
@@ -396,6 +462,32 @@ useEffect(() => {
                 <RadioOption label="Yes" name="approval" value="Yes" selected={form.approval} onChange={handleChange} />
                 <RadioOption label="No" name="approval" value="No" selected={form.approval} onChange={handleChange} />
               </div>
+            </section>
+
+            {/* Denomination (New Section Box with blue accent styling) */}
+            <section
+            
+            >
+              <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Denomination
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "var(--theme-text-muted)" }}>
+                Select your denomination option
+              </p>
+              <select
+                name="denomination"
+                value={form.denomination}
+                onChange={handleChange}
+                className="w-full rounded-sm border p-3.5 text-sm outline-none transition-all cursor-pointer"
+                style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+              >
+                <option value="" disabled>Select denomination...</option>
+                {denominationList.map((item) => (
+                  <option key={item} value={item} style={{ backgroundColor: "var(--theme-bg)", color: "var(--theme-text-main)" }}>
+                    {item}
+                  </option>
+                ))}
+              </select>
             </section>
 
             {/* Selected Box (Names Dropdown/Options) */}
@@ -542,7 +634,7 @@ useEffect(() => {
 function Input({ label, name, value, onChange, type = "text", placeholder = "", required = false }: InputProps) {
   return (
     <div>
-      <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--theme-text-muted)" }}>{label}</label>
+      {label && <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--theme-text-muted)" }}>{label}</label>}
       <input
         type={type}
         name={name}

