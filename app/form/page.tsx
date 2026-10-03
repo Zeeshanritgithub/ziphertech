@@ -58,10 +58,13 @@ export default function Home() {
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
-  
-  // Stopwatch states (Auto-start enabled by default)
-  const [time, setTime] = useState(0); 
+
+  // Stopwatch states (Auto-start enabled by default, initialized from localStorage for zero-latency refresh survival)
+  const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
+  const [timerInitialized, setTimerInitialized] = useState(false);
+
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -72,8 +75,8 @@ export default function Home() {
       currentAudioRef.current = null;
     }
 
-    const audioFiles = ["/playe1.wav", "/playe2.wav", "/playe3.wav"];
-    
+    const audioFiles = ["/play1e.wav", "/play2e.wav", "/play3e.wav"];
+
     // Get the last played index from localStorage, default to 0
     const storedIndex = localStorage.getItem("zipher_audio_index");
     let nextIndex = storedIndex ? (parseInt(storedIndex, 10) + 1) % audioFiles.length : 0;
@@ -90,8 +93,12 @@ export default function Home() {
     });
   };
 
-  // Helper function to save timer to Supabase Auth metadata
-  const saveTimerToAuth = async (currentMs: number) => {
+  // Helper function to save timer to both localStorage and Supabase Auth metadata
+  const saveTimerData = async (currentMs: number) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("zipher_timer_ms", currentMs.toString());
+      localStorage.setItem("zipher_timer_updated_at", Date.now().toString());
+    }
     const supabase = createClient();
     await supabase.auth.updateUser({
       data: {
@@ -101,37 +108,113 @@ export default function Home() {
     });
   };
 
-  // Fetch saved timer from Supabase Auth metadata and check 24-hour reset rule, plus auto-play once per entry/session
+  // Fetch saved timer from Supabase Auth metadata to sync across sessions, plus check 24-hour reset rule & audio play
   useEffect(() => {
     const initPageSession = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        // -----------------------------------------
+        // 1. Restore timer from localStorage
+        // -----------------------------------------
+        const localSaved = localStorage.getItem("zipher_timer_ms");
 
-      const metadata = user.user_metadata || {};
-      const savedMs = metadata.timer_ms || 0;
-      const lastActive = metadata.timer_updated_at ? new Date(metadata.timer_updated_at).getTime() : 0;
-      
-      const now = Date.now();
-      const oneDayMs = 24 * 60 * 60 * 1000;
+        let localTime = 0;
 
-      if (lastActive && (now - lastActive > oneDayMs)) {
-        setTime(0);
-        await supabase.auth.updateUser({
-          data: { 
-            timer_ms: 0, 
-            timer_updated_at: new Date().toISOString() 
+        if (localSaved) {
+          const parsedTime = parseInt(localSaved, 10);
+
+          if (!isNaN(parsedTime)) {
+            localTime = parsedTime;
+            setTime(parsedTime);
           }
-        });
-      } else {
-        setTime(savedMs);
-      }
+        }
 
-      // Check if audio already played for this fresh load / session to avoid re-triggering on browser refresh
-      const hasPlayedThisSession = sessionStorage.getItem("zipher_session_audio_played");
-      if (!hasPlayedThisSession) {
-        sessionStorage.setItem("zipher_session_audio_played", "true");
-        playNextRotationalWav();
+        // -----------------------------------------
+        // 2. Get Supabase user
+        // -----------------------------------------
+        const supabase = createClient();
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        // -----------------------------------------
+        // 3. No logged-in user
+        // -----------------------------------------
+        if (!user) {
+          setTimerInitialized(true);
+          return;
+        }
+
+        // -----------------------------------------
+        // 4. Get saved timer from Supabase
+        // -----------------------------------------
+        const metadata = user.user_metadata || {};
+
+        const savedMs =
+          typeof metadata.timer_ms === "number"
+            ? metadata.timer_ms
+            : parseInt(metadata.timer_ms || "0", 10);
+
+        const timerUpdatedAt = metadata.timer_updated_at;
+
+        // -----------------------------------------
+        // 5. Check 24-hour expiry
+        // -----------------------------------------
+        const now = Date.now();
+        const oneDayMs = 24 * 60 * 60 * 1000;
+
+        let syncedTime = Math.max(
+          localTime,
+          isNaN(savedMs) ? 0 : savedMs
+        );
+
+        if (timerUpdatedAt) {
+          const lastActive = new Date(timerUpdatedAt).getTime();
+
+          if (
+            !isNaN(lastActive) &&
+            now - lastActive > oneDayMs
+          ) {
+            syncedTime = 0;
+
+            localStorage.setItem(
+              "zipher_timer_ms",
+              "0"
+            );
+
+            await supabase.auth.updateUser({
+              data: {
+                timer_ms: 0,
+                timer_updated_at: new Date().toISOString(),
+              },
+            });
+          }
+        }
+
+        // -----------------------------------------
+        // 6. Apply final synced timer
+        // -----------------------------------------
+        setTime(syncedTime);
+
+        localStorage.setItem(
+          "zipher_timer_ms",
+          syncedTime.toString()
+        );
+
+        // -----------------------------------------
+        // 7. Start timer only AFTER restoration
+        // -----------------------------------------
+        setTimerInitialized(true);
+
+      } catch (error) {
+        console.error(
+          "Error initializing page session:",
+          error
+        );
+
+        // Even if Supabase fails,
+        // allow the local timer to continue.
+        setTimerInitialized(true);
       }
     };
 
@@ -139,21 +222,34 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (isRunning) {
-      const startTime = Date.now() - time;
-      timerRef.current = setInterval(() => {
-        const currentTimeMs = Date.now() - startTime;
-        setTime(currentTimeMs);
-        // Periodic sync to Supabase auth metadata to persist through hard refreshes
-        saveTimerToAuth(currentTimeMs);
-      }, 1000); // Sync every second to prevent data loss on refresh
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+    // Don't start timer until localStorage / Supabase
+    // restoration has completed.
+    if (!timerInitialized || !isRunning) {
+      return;
     }
+
+    const startTime = Date.now() - time;
+
+    timerRef.current = setInterval(() => {
+      const currentTimeMs = Date.now() - startTime;
+
+      setTime(currentTimeMs);
+
+      localStorage.setItem(
+        "zipher_timer_ms",
+        currentTimeMs.toString()
+      );
+
+      saveTimerData(currentTimeMs);
+    }, 1000);
+
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [isRunning]);
+  }, [timerInitialized, isRunning]);
 
   // Format time as HH:MM:SS (Hours, Minutes, Seconds only)
   const formatTime = (ms: number) => {
@@ -168,16 +264,28 @@ export default function Home() {
     return `${h}:${m}:${s}`;
   };
 
+  // Helper to generate the dynamic hourly session message for the right-side box
+  const getHourlySessionMessage = (ms: number) => {
+    const totalHours = Math.floor(ms / 3600000);
+    if (totalHours === 0) {
+      return "Active Session (Under 1 Hour)";
+    } else if (totalHours === 1) {
+      return "1 Hour Login Session Completed";
+    } else {
+      return `${totalHours} Hours Login Session Completed`;
+    }
+  };
+
   const handleStartPause = async () => {
     const nextState = !isRunning;
     setIsRunning(nextState);
     if (nextState) {
-      playNextRotationalWav(); 
+      playNextRotationalWav();
     } else {
       if (currentAudioRef.current) {
         currentAudioRef.current.pause();
       }
-      await saveTimerToAuth(time);
+      await saveTimerData(time);
     }
   };
 
@@ -187,8 +295,11 @@ export default function Home() {
       currentAudioRef.current.pause();
     }
     setTime(0);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("zipher_timer_ms", "0");
+    }
     setForm((prev) => ({ ...prev, sessionDuration: "00:00:00" }));
-    await saveTimerToAuth(0);
+    await saveTimerData(0);
   };
 
   // Theme state with localStorage initialization
@@ -239,7 +350,10 @@ export default function Home() {
       currentAudioRef.current.pause();
     }
     setTime(0);
-    await saveTimerToAuth(0);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("zipher_timer_ms", "0");
+    }
+    await saveTimerData(0);
     setIsRunning(true);
     playNextRotationalWav();
   };
@@ -273,7 +387,10 @@ export default function Home() {
           currentAudioRef.current.pause();
         }
         setTime(0);
-        await saveTimerToAuth(0);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("zipher_timer_ms", "0");
+        }
+        await saveTimerData(0);
         setIsRunning(true);
         playNextRotationalWav();
       } else {
@@ -287,12 +404,12 @@ export default function Home() {
   };
 
   const namesList = [
-    "Jennifer", "Veronica", "Chris", "Peter", "John", "Bella", 
+    "Jennifer", "Veronica", "Chris", "Peter", "John", "Bella",
     "Stefart", "Shepherd", "Diana", "Emma", "Cathirana", "Jimmy"
   ];
 
   const denominationList = [
-    "Catholic", "Protestant", "Orthodox", "Other Christian", 
+    "Catholic", "Protestant", "Orthodox", "Other Christian",
     "Islam", "Hinduism", "No Religion", "Other", "Prefer not to say"
   ];
 
@@ -344,39 +461,65 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Compact Timer Widget aligned to the left above the logo */}
-          <div 
-            className="mb-6 p-2.5 rounded-xl border inline-flex flex-col items-start gap-2 shadow-sm transition-all"
-            style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
-          >
-            <div className="flex items-center gap-2 px-1">
-              {/* Stopwatch Icon */}
-              <svg className="w-4 h-4" style={{ color: "var(--theme-primary)" }} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <span className="font-mono text-sm font-bold tracking-wider" style={{ color: "var(--theme-text-main)" }}>
-                {formatTime(time)}
+          {/* Top Row Widgets: Timer on Left, Login Session Status Box on Right */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
+
+            {/* Compact Timer Widget aligned to the left */}
+            <div
+              className="p-2.5 rounded-xl border inline-flex flex-col items-start gap-2 shadow-sm transition-all"
+              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+
+            >
+              <div className="mb-0">
+                <p
+                  className="text-[10px] font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--theme-text-muted)" }}
+                >
+                  Zipher Timer Zone
+                </p>
+              </div>
+              <div className="flex items-center gap-2 px-1">
+                {/* Stopwatch Icon */}
+                <svg className="w-4 h-4" style={{ color: "var(--theme-primary)" }} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <span className="font-mono text-sm font-bold tracking-wider" style={{ color: "var(--theme-text-main)" }}>
+                  {formatTime(time)}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleStartPause}
+                  className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-white transition-all cursor-pointer ${isRunning ? "bg-red-600 hover:bg-red-500" : "bg-emerald-600 hover:bg-emerald-500"
+                    }`}
+                >
+                  {isRunning ? "Pause" : "Start"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetTimer}
+                  className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer hover:opacity-80"
+                  style={{ backgroundColor: "var(--theme-card-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {/* Right-Side Aligned Hourly Login Session Status Box */}
+            <div
+              className="p-3 rounded-xl border flex flex-col justify-center items-start sm:items-end gap-1 shadow-sm transition-all flex-1 sm:max-w-[280px]"
+              style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+            >
+              <span className="text-[10px] uppercase font-bold tracking-widest" style={{ color: "var(--theme-text-muted)" }}>
+                Login Session Status
+              </span>
+              <span className="text-xs font-semibold text-right" style={{ color: "var(--theme-primary)" }}>
+                {getHourlySessionMessage(time)}
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleStartPause}
-                className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-white transition-all cursor-pointer ${
-                  isRunning ? "bg-amber-600 hover:bg-amber-500" : "bg-emerald-600 hover:bg-emerald-500"
-                }`}
-              >
-                {isRunning ? "Pause" : "Start"}
-              </button>
-              <button
-                type="button"
-                onClick={handleResetTimer}
-                className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer hover:opacity-80"
-                style={{ backgroundColor: "var(--theme-card-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
-              >
-                Reset
-              </button>
-            </div>
+
           </div>
 
           {/* Header */}
