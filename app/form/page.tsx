@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
 
@@ -52,17 +52,149 @@ export default function Home() {
     selectedName: "",
     authStatus: "",
     authTime: "",
+    sessionDuration: "00:00:00",
   };
 
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
   
+  // Stopwatch states (Auto-start enabled by default)
+  const [time, setTime] = useState(0); 
+  const [isRunning, setIsRunning] = useState(true);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Helper function to play ONLY ONE rotational wav file at a time
+  const playNextRotationalWav = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
+    const audioFiles = ["/playe1.wav", "/playe2.wav", "/playe3.wav"];
+    
+    // Get the last played index from localStorage, default to 0
+    const storedIndex = localStorage.getItem("zipher_audio_index");
+    let nextIndex = storedIndex ? (parseInt(storedIndex, 10) + 1) % audioFiles.length : 0;
+
+    // Save the new index for the next user visit / action
+    localStorage.setItem("zipher_audio_index", nextIndex.toString());
+
+    // Play only that single file
+    const audio = new Audio(audioFiles[nextIndex]);
+    currentAudioRef.current = audio;
+
+    audio.play().catch((err) => {
+      console.log("Audio playback error (browser restriction):", err);
+    });
+  };
+
+  // Helper function to save timer to Supabase Auth metadata
+  const saveTimerToAuth = async (currentMs: number) => {
+    const supabase = createClient();
+    await supabase.auth.updateUser({
+      data: {
+        timer_ms: currentMs,
+        timer_updated_at: new Date().toISOString(),
+      },
+    });
+  };
+
+  // Fetch saved timer from Supabase Auth metadata and check 24-hour reset rule, plus auto-play once per entry/session
+  useEffect(() => {
+    const initPageSession = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const metadata = user.user_metadata || {};
+      const savedMs = metadata.timer_ms || 0;
+      const lastActive = metadata.timer_updated_at ? new Date(metadata.timer_updated_at).getTime() : 0;
+      
+      const now = Date.now();
+      const oneDayMs = 24 * 60 * 60 * 1000;
+
+      if (lastActive && (now - lastActive > oneDayMs)) {
+        setTime(0);
+        await supabase.auth.updateUser({
+          data: { 
+            timer_ms: 0, 
+            timer_updated_at: new Date().toISOString() 
+          }
+        });
+      } else {
+        setTime(savedMs);
+      }
+
+      // Check if audio already played for this fresh load / session to avoid re-triggering on browser refresh
+      const hasPlayedThisSession = sessionStorage.getItem("zipher_session_audio_played");
+      if (!hasPlayedThisSession) {
+        sessionStorage.setItem("zipher_session_audio_played", "true");
+        playNextRotationalWav();
+      }
+    };
+
+    initPageSession();
+  }, []);
+
+  useEffect(() => {
+    if (isRunning) {
+      const startTime = Date.now() - time;
+      timerRef.current = setInterval(() => {
+        const currentTimeMs = Date.now() - startTime;
+        setTime(currentTimeMs);
+        // Periodic sync to Supabase auth metadata to persist through hard refreshes
+        saveTimerToAuth(currentTimeMs);
+      }, 1000); // Sync every second to prevent data loss on refresh
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isRunning]);
+
+  // Format time as HH:MM:SS (Hours, Minutes, Seconds only)
+  const formatTime = (ms: number) => {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+
+    const h = String(hours).padStart(2, "0");
+    const m = String(minutes).padStart(2, "0");
+    const s = String(seconds).padStart(2, "0");
+
+    return `${h}:${m}:${s}`;
+  };
+
+  const handleStartPause = async () => {
+    const nextState = !isRunning;
+    setIsRunning(nextState);
+    if (nextState) {
+      playNextRotationalWav(); 
+    } else {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+      }
+      await saveTimerToAuth(time);
+    }
+  };
+
+  const handleResetTimer = async () => {
+    setIsRunning(false);
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+    }
+    setTime(0);
+    setForm((prev) => ({ ...prev, sessionDuration: "00:00:00" }));
+    await saveTimerToAuth(0);
+  };
+
   // Theme state with localStorage initialization
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
-    // Check if theme preference exists in localStorage
     const savedTheme = localStorage.getItem("zipher_theme") as "dark" | "light" | null;
     if (savedTheme) {
       setTheme(savedTheme);
@@ -99,9 +231,17 @@ export default function Home() {
     });
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     setForm(initialForm);
     setResult("");
+    setIsRunning(false);
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+    }
+    setTime(0);
+    await saveTimerToAuth(0);
+    setIsRunning(true);
+    playNextRotationalWav();
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -109,13 +249,18 @@ export default function Home() {
     setLoading(true);
     setResult("");
 
+    const finalPayload = {
+      ...form,
+      sessionDuration: formatTime(time),
+    };
+
     try {
       const response = await fetch("/api/submit-form", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(finalPayload),
       });
 
       const data = await response.json();
@@ -123,6 +268,14 @@ export default function Home() {
       if (data.success) {
         setResult("Form submitted successfully!");
         setForm(initialForm);
+        setIsRunning(false);
+        if (currentAudioRef.current) {
+          currentAudioRef.current.pause();
+        }
+        setTime(0);
+        await saveTimerToAuth(0);
+        setIsRunning(true);
+        playNextRotationalWav();
       } else {
         setResult(data.message || "Something went wrong.");
       }
@@ -134,30 +287,13 @@ export default function Home() {
   };
 
   const namesList = [
-    "Jennifer",
-    "Veronica",
-    "Chris",
-    "Peter",
-    "John",
-    "Bella",
-    "Stefart",
-    "Shepherd",
-    "Diana",
-    "Emma",
-    "Cathirana",
-    "Jimmy",
+    "Jennifer", "Veronica", "Chris", "Peter", "John", "Bella", 
+    "Stefart", "Shepherd", "Diana", "Emma", "Cathirana", "Jimmy"
   ];
 
   const denominationList = [
-    "Catholic",
-    "Protestant",
-    "Orthodox",
-    "Other Christian",
-    "Islam",
-    "Hinduism",
-    "No Religion",
-    "Other",
-    "Prefer not to say",
+    "Catholic", "Protestant", "Orthodox", "Other Christian", 
+    "Islam", "Hinduism", "No Religion", "Other", "Prefer not to say"
   ];
 
   return (
@@ -206,6 +342,41 @@ export default function Home() {
                 </>
               )}
             </button>
+          </div>
+
+          {/* Compact Timer Widget aligned to the left above the logo */}
+          <div 
+            className="mb-6 p-2.5 rounded-xl border inline-flex flex-col items-start gap-2 shadow-sm transition-all"
+            style={{ backgroundColor: "var(--theme-bg)", borderColor: "var(--theme-border)" }}
+          >
+            <div className="flex items-center gap-2 px-1">
+              {/* Stopwatch Icon */}
+              <svg className="w-4 h-4" style={{ color: "var(--theme-primary)" }} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              <span className="font-mono text-sm font-bold tracking-wider" style={{ color: "var(--theme-text-main)" }}>
+                {formatTime(time)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleStartPause}
+                className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-white transition-all cursor-pointer ${
+                  isRunning ? "bg-amber-600 hover:bg-amber-500" : "bg-emerald-600 hover:bg-emerald-500"
+                }`}
+              >
+                {isRunning ? "Pause" : "Start"}
+              </button>
+              <button
+                type="button"
+                onClick={handleResetTimer}
+                className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer hover:opacity-80"
+                style={{ backgroundColor: "var(--theme-card-bg)", borderColor: "var(--theme-border)", color: "var(--theme-text-main)" }}
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
           {/* Header */}
@@ -279,15 +450,8 @@ export default function Home() {
               </div>
             </section>
 
-
-            {/* Identification Type (New Section Box with blue accent styling) */}
-
-
-
-
-
-
-             <section>
+            {/* Identification Type */}
+            <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-2 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Identification Type
               </h2>
@@ -301,14 +465,8 @@ export default function Home() {
               </div>
             </section>
 
-
-           
-
-            {/* I.D Number / Identification Number (New Section Box with blue accent styling) */}
-
-
-            
-             <section>
+            {/* Identification Number */}
+            <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-2 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Identification Number
               </h2>
@@ -318,9 +476,6 @@ export default function Home() {
                 </div>
               </div>
             </section>
-
-
-           
 
             {/* Primary Key */}
             <section>
@@ -450,7 +605,7 @@ export default function Home() {
               />
             </section>
 
-            {/* Approval Box (Yes/No) */}
+            {/* Approval Box */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Approval
@@ -464,10 +619,8 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Denomination (New Section Box with blue accent styling) */}
-            <section
-            
-            >
+            {/* Denomination */}
+            <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Denomination
               </h2>
@@ -490,7 +643,7 @@ export default function Home() {
               </select>
             </section>
 
-            {/* Selected Box (Names Dropdown/Options) */}
+            {/* Selected */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Selected
@@ -519,7 +672,6 @@ export default function Home() {
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} /> Authentication System
               </h2>
-
               <div className="space-y-4">
                 <select
                   name="authStatus"
@@ -539,7 +691,6 @@ export default function Home() {
               <h2 className="text-sm font-semibold uppercase tracking-wider mb-1 flex items-center gap-2" style={{ color: "var(--theme-primary)" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--theme-primary)" }} />Authentication Time
               </h2>
-
               <div>
                 <div className="relative">
                   <input
