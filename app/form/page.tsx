@@ -287,20 +287,9 @@ export default function Home() {
     });
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     setForm(initialForm);
     setResult("");
-    setIsRunning(false);
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-    }
-    setTime(0);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("zipher_timer_ms", "0");
-    }
-    await saveTimerData(0);
-    setIsRunning(true);
-    playNextRotationalWav();
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -327,17 +316,6 @@ export default function Home() {
       if (data.success) {
         setResult("Form submitted successfully!");
         setForm(initialForm);
-        setIsRunning(false);
-        if (currentAudioRef.current) {
-          currentAudioRef.current.pause();
-        }
-        setTime(0);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("zipher_timer_ms", "0");
-        }
-        await saveTimerData(0);
-        setIsRunning(true);
-        playNextRotationalWav();
       } else {
         setResult(data.message || "Something went wrong.");
       }
@@ -417,7 +395,6 @@ export default function Home() {
               <div className="mb-0">
                 <p
                   className="text-[10px] font-semibold uppercase text-red-600 tracking-wider"
-                  style={{ color: "var(--theme-text-muted)" }}
                 >
                   Zipher Timer Zone
                 </p>
