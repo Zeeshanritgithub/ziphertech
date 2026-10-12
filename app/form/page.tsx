@@ -89,6 +89,36 @@ export default function Home() {
     });
   };
 
+  // Helper function to play rotational submit button audio files (button1.wav through button7.wav)
+  const playNextSubmitWav = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
+    const submitAudioFiles = [
+      "/button1.wav",
+      "/button2.wav",
+      "/button3.wav",
+      "/button4.wav",
+      "/button5.wav",
+      "/button6.wav",
+      "/button7.wav",
+    ];
+
+    const storedIndex = localStorage.getItem("zipher_submit_audio_index");
+    let nextIndex = storedIndex ? (parseInt(storedIndex, 10) + 1) % submitAudioFiles.length : 0;
+
+    localStorage.setItem("zipher_submit_audio_index", nextIndex.toString());
+
+    const audio = new Audio(submitAudioFiles[nextIndex]);
+    currentAudioRef.current = audio;
+
+    audio.play().catch((err) => {
+      console.log("Submit audio playback error (browser restriction):", err);
+    });
+  };
+
   // Helper function to save timer to both localStorage and Supabase Auth metadata
   const saveTimerData = async (currentMs: number) => {
     if (typeof window !== "undefined") {
@@ -294,6 +324,7 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    playNextSubmitWav();
     setLoading(true);
     setResult("");
 
