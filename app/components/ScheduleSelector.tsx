@@ -110,14 +110,14 @@ export default function ScheduleSelector() {
   );
 
   return (
-    <div id="schedule-container" className="fixed bottom-25 right-5 z-50 flex flex-col items-end">
-      {/* Attached Popover Menu */}
+    <div id="schedule-container" className="fixed right-5 top-1/2 -translate-y-1/2 z-50 flex items-center">
+      {/* Attached Popover Menu (Appears on the left side of the mid-screen right button) */}
       {isOpen && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="schedule-title"
-          className="absolute bottom-20 right-0 mb-1 w-72 flex flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-950 shadow-2xl animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-full mr-3 w-64 sm:w-72 flex flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-950 shadow-2xl animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-3 py-2">
@@ -150,8 +150,8 @@ export default function ScheduleSelector() {
             )}
           </div>
 
-          {/* Scrollable options grid */}
-          <div className="max-h-[50vh] overflow-y-auto p-2">
+          {/* Scrollable options grid with hidden scrollbars */}
+          <div className="max-h-[45vh] sm:max-h-[50vh] overflow-y-auto p-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="grid grid-cols-2 gap-1.5">
               {scheduleOptions.map((item) => {
                 const Icon = item.icon;
@@ -196,37 +196,32 @@ export default function ScheduleSelector() {
         </div>
       )}
 
-      {/* Floating Button Trigger */}
+      {/* Floating Button Trigger (Positioned mid-screen on the right side) */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open schedule selector"
         title={selected ? `Current status: ${selected}` : "Zipher Aux"}
-        className="group flex cursor-pointer items-center gap-2.5 rounded-full border border-cyan-400 bg-slate-950 p-2 text-cyan-300 shadow-lg shadow-cyan-500/20 transition duration-200 hover:scale-105 hover:bg-slate-900"
+        className="group flex cursor-pointer items-center gap-2 rounded-full border border-cyan-400 bg-slate-950 px-2.5 py-1.5 text-cyan-300 shadow-lg shadow-cyan-500/20 transition duration-200 hover:scale-105 hover:bg-slate-900"
       >
         {/* Circular icon container */}
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 transition group-hover:border-cyan-300">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 transition group-hover:border-cyan-300">
           {activeOption ? (
-            <activeOption.icon size={20} className="shrink-0" />
+            <activeOption.icon size={14} className="shrink-0" />
           ) : (
-            <Clock size={20} className="shrink-0" />
+            <Clock size={14} className="shrink-0" />
           )}
         </span>
 
         {/* Text area */}
-        <div className="flex flex-col text-left pr-2">
-          <span className="text-xs font-black tracking-wide uppercase text-cyan-400">
+        <div className="flex flex-col text-left pr-1">
+          <span className="text-[9px] font-black tracking-wide uppercase text-cyan-400 leading-tight">
             Zipher Aux
           </span>
-          <span className="max-w-[120px] truncate text-xs font-semibold text-slate-300">
+          <span className="max-w-[100px] truncate text-[10px] font-semibold text-slate-300 leading-tight">
             {selected || "Select status"}
           </span>
         </div>
-
-        {/* Counter/Status indicator badge */}
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-400 text-[10px] font-bold text-slate-950">
-          {selected ? <Check size={12} strokeWidth={3} /> : "+"}
-        </span>
       </button>
     </div>
   );
