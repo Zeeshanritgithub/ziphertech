@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/client";
+import ScheduleSelector from "../components/ScheduleSelector";
 
 interface InputProps {
   label: string;
@@ -871,6 +872,7 @@ export default function Home() {
         </div>
 
       </div>
+      <ScheduleSelector />
     </main>
   );
 }
