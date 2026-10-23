@@ -110,7 +110,7 @@ export default function ScheduleSelector() {
   );
 
   return (
-    <div id="schedule-container" className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
+    <div id="schedule-container" className="fixed bottom-25 right-5 z-50 flex flex-col items-end">
       {/* Attached Popover Menu */}
       {isOpen && (
         <div
