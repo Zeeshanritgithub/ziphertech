@@ -110,7 +110,7 @@ export default function ScheduleSelector() {
   );
 
   return (
-    <div id="schedule-container" className="fixed right-5 top-1/2 -translate-y-1/2 z-50 flex items-center">
+    <div id="schedule-container" className="relative z-50 flex items-center">
       {/* Attached Popover Menu (Appears on the left side of the mid-screen right button) */}
       {isOpen && (
         <div
@@ -202,7 +202,7 @@ export default function ScheduleSelector() {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open schedule selector"
         title={selected ? `Current status: ${selected}` : "Zipher Aux"}
-        className="group flex cursor-pointer items-center gap-2 rounded-full border border-cyan-400 bg-slate-950 px-2.5 py-1.5 text-cyan-300 shadow-lg shadow-cyan-500/20 transition duration-200 hover:scale-105 hover:bg-slate-900"
+       className="group flex cursor-pointer items-center gap-2 rounded-full border border-cyan-400 bg-slate-950 px-3 py-2 text-cyan-300 shadow-lg shadow-cyan-500/20 transition duration-200 hover:bg-slate-900"
       >
         {/* Circular icon container */}
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 transition group-hover:border-cyan-300">

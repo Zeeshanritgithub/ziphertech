@@ -474,33 +474,57 @@ export default function Home() {
           </div>
 
           {/* Header */}
+
           <div
-            className="flex items-center gap-5 mb-8 pb-6 border-b"
+            className="flex items-center justify-between gap-4 mb-8 pb-6 border-b"
             style={{ borderColor: "var(--theme-border)" }}
           >
-            <div className="relative flex-shrink-0">
-              <div
-                className="absolute inset-0 blur-xl opacity-30 rounded-full"
-                style={{ backgroundColor: "var(--theme-primary)" }}
-              />
-              <img
-                src="/z-logo.png"
-                alt="Zipher Logo"
-                className="w-20 h-20 md:w-28 md:h-28 object-contain relative z-10"
-              />
+            {/* Left: Logo and Title */}
+            <div className="flex min-w-0 items-center gap-5">
+              <div className="relative flex-shrink-0">
+                <div
+                  className="absolute inset-0 blur-xl opacity-30 rounded-full"
+                  style={{ backgroundColor: "var(--theme-primary)" }}
+                />
+                <img
+                  src="/z-logo.png"
+                  alt="Zipher Logo"
+                  className="w-16 h-16 md:w-28 md:h-28 object-contain relative z-10"
+                />
+              </div>
+
+              <div className="min-w-0">
+                <h1
+                  className="text-xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, var(--theme-text-main), var(--theme-primary))`,
+                  }}
+                >
+                  Zipher Data Policy
+                </h1>
+
+                <p
+                  className="text-xs md:text-sm mt-1 font-medium tracking-wide"
+                  style={{ color: "var(--theme-text-muted)" }}
+                >
+                  Your Data{" "}
+                  <span
+                    className="font-bold mx-1"
+                    style={{ color: "var(--theme-primary)" }}
+                  >
+                    |
+                  </span>
+                  Our Responsibility
+                </p>
+              </div>
             </div>
-            <div>
-              <h1
-                className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent"
-                style={{ backgroundImage: `linear-gradient(to right, var(--theme-text-main), var(--theme-primary))` }}
-              >
-                Zipher Data Policy
-              </h1>
-              <p className="text-xs md:text-sm mt-1 font-medium tracking-wide" style={{ color: "var(--theme-text-muted)" }}>
-                Your Data <span className="font-bold mx-1" style={{ color: "var(--theme-primary)" }}>|</span> Our Responsibility
-              </p>
+
+            {/* Right: Schedule Button */}
+            <div className="ml-auto flex-shrink-0">
+              <ScheduleSelector />
             </div>
           </div>
+
 
           <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -872,7 +896,7 @@ export default function Home() {
         </div>
 
       </div>
-      <ScheduleSelector />
+     
     </main>
   );
 }
